@@ -18,29 +18,30 @@
         
         /* Photo Stack & Zoom */
         .photo-stack { position: relative; width: 240px; height: 320px; z-index: 10; }
-        .frame { position: absolute; width: 100%; height: 100%; background: white; padding: 10px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-radius: 12px; transition: 0.5s ease; cursor: zoom-in; }
+        .frame { position: absolute; width: 100%; height: 100%; background: white; padding: 10px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-radius: 12px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: zoom-in; }
         .f1 { transform: rotate(3deg); z-index: 5; }
         .f2 { transform: rotate(-6deg); z-index: 4; top: 15px; left: -20px; opacity: 0.8; }
         .frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; background: #eee; }
 
-        /* Image Full View Logic */
-        .frame.zoom { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(0deg) scale(1.4); width: 85vw; height: auto; z-index: 60000; cursor: zoom-out; }
-        .overlay-dim { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 55000; }
+        /* Zoom Effect */
+        .frame.zoom { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(0deg) scale(1.3); width: 85vw; height: auto; z-index: 60000; cursor: zoom-out; }
+        .overlay-dim { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 55000; backdrop-filter: blur(5px); }
 
         .tension-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 30000; flex-direction: column; justify-content: center; align-items: center; }
-        .tension-emoji { font-size: 7rem; }
+        .tension-emoji { font-size: 7rem; transition: transform 0.2s; }
         .big-grade { font-size: 9rem; font-family: 'Cinzel'; color: var(--pink); display: none; font-weight: 900; }
 
-        .paper-roll { background: #fff; width: 90%; max-width: 450px; padding: 0 30px; box-shadow: 0 50px 100px rgba(0,0,0,0.05); max-height: 0; overflow: hidden; transition: max-height 2.5s ease; border-bottom: 15px solid var(--pink); border-radius: 0 0 30px 30px; }
-        .paper-roll.active { max-height: 2000px; padding: 40px 30px; }
+        .paper-roll { background: #fff; width: 90%; max-width: 450px; padding: 0 30px; box-shadow: 0 50px 100px rgba(0,0,0,0.05); max-height: 0; overflow: hidden; transition: max-height 2.5s ease; border-bottom: 15px solid var(--pink); border-radius: 0 0 30px 30px; margin-bottom: 50px; }
+        .paper-roll.active { max-height: 2500px; padding: 40px 30px; }
         .row { display: flex; justify-content: space-between; padding: 18px 0; border-bottom: 1px dashed #eee; font-weight: bold; }
 
         .gen-popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background: white; z-index: 20000; border-radius: 25px; padding: 25px; box-shadow: 0 0 100px rgba(0,0,0,0.3); max-height: 80vh; overflow-y: auto; }
-        .btn { width: 100%; padding: 15px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .upload-area { border: 2px dashed #ff85a2; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: center; color: #ff85a2; font-size: 14px; cursor: pointer; }
+        .btn { width: 100%; padding: 15px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        .btn:active { transform: scale(0.95); }
+        .upload-area { border: 2px dashed #ff85a2; padding: 12px; margin: 10px 0; border-radius: 10px; text-align: center; color: #ff85a2; font-size: 14px; cursor: pointer; }
     </style>
 </head>
-<body onclick="startMusic()">
+<body onclick="startMusic()" onscroll="startMusic()">
 
 <div class="overlay-dim" id="dimOverlay" onclick="closeZoom()"></div>
 
@@ -53,35 +54,35 @@
 
 <div class="hero">
     <div class="photo-stack">
-        <div class="frame f1" id="frame1" onclick="zoomImg('frame1')"><img src="https://via.placeholder.com/300x400?text=Front" id="mainPhoto"></div>
-        <div class="frame f2" id="frame2" onclick="zoomImg('frame2')"><img src="https://via.placeholder.com/300x400?text=Back" id="backPhoto"></div>
+        <div class="frame f1" id="frame1" onclick="zoomImg('frame1')"><img src="https://via.placeholder.com/300x400?text=Front+Photo" id="mainPhoto"></div>
+        <div class="frame f2" id="frame2" onclick="zoomImg('frame2')"><img src="https://via.placeholder.com/300x400?text=Back+Photo" id="backPhoto"></div>
     </div>
     <h1 id="displayName" style="font-family:'Dancing Script'; color:var(--pink); font-size:3rem; margin:15px 0;">Faris Tonix</h1>
-    <p style="color: #aaa; font-size: 12px;">(Click photos to zoom ☝🏻• Scroll for Result 👇🏻)</p>
+    <p style="color: #bbb; font-size: 13px;">Tap photos to view • Scroll for Memo</p>
 </div>
 
 <div class="tension-modal" id="tensionModal">
     <div id="emojiLayer">
-        <div class="tension-emoji" id="tEmoji">🤧</div>
-        <p style="color:var(--pink); font-weight:bold;">CHECKING...</p>
+        <div class="tension-emoji" id="tEmoji">😭</div>
+        <p style="color:var(--pink); font-weight:bold; letter-spacing: 2px;">CALCULATING...</p>
     </div>
     <div class="big-grade" id="finalGrade"></div>
 </div>
 
 <div class="paper-roll" id="paper">
-    <h2 style="text-align:center; font-family:'Cinzel';"> RESULT MEMO</h2>
+    <h2 style="text-align:center; font-family:'Cinzel';">OFFICIAL MEMO</h2>
     <div id="resultBox"></div>
     <button class="btn" style="background:#111; color:#fff;" onclick="openGen()">CREATE UR CUSTOM LINK ✨</button>
 </div>
 
 <div class="gen-popup" id="genPopup">
     <h3 style="text-align:center; color:var(--pink);">Link Generator</h3>
-    <input type="text" id="inName" placeholder="Candidate Name" style="width:100%; padding:10px; margin-bottom:10px;">
+    <input type="text" id="inName" placeholder="Candidate Name" style="width:100%; padding:12px; margin-bottom:10px; border: 1px solid #ddd; border-radius: 8px;">
     
-    <div class="upload-area" onclick="document.getElementById('imgInp1').click()">📸 Front Photo</div>
+    <div class="upload-area" onclick="document.getElementById('imgInp1').click()">📸 Select Front Photo</div>
     <input type="file" id="imgInp1" hidden accept="image/*" onchange="loadFile(event, 'mainPhoto')">
     
-    <div class="upload-area" onclick="document.getElementById('imgInp2').click()">🖼️ Back Photo</div>
+    <div class="upload-area" onclick="document.getElementById('imgInp2').click()">🖼️ Select Back Photo</div>
     <input type="file" id="imgInp2" hidden accept="image/*" onchange="loadFile(event, 'backPhoto')">
 
     <div id="gradeInputs"></div>
@@ -93,14 +94,12 @@
     const audio = document.getElementById('bgMusic');
     let musicStarted = false;
 
-    // Force Start Music on first interaction
     function startMusic() {
         if (!musicStarted) {
             audio.play().then(() => { musicStarted = true; }).catch(() => {});
         }
     }
 
-    // Zoom Functions
     function zoomImg(id) {
         startMusic();
         const frame = document.getElementById(id);
@@ -108,7 +107,7 @@
         if(frame.classList.contains('zoom')) {
             closeZoom();
         } else {
-            closeZoom(); // Close others
+            closeZoom();
             frame.classList.add('zoom');
             overlay.style.display = 'block';
         }
@@ -120,10 +119,11 @@
     }
 
     const subs = ["Language I", "Language II", "English", "Hindi", "Social", "Physics", "Chemistry", "Biology", "Maths", "IT"];
+    const tensionEmojis = ["😭", "🤧", "😞", "😦", "🥲", "😱", "🤯", "😫"];
     
     subs.forEach((s, i) => {
         document.getElementById('resultBox').innerHTML += `<div class="row"><span>${s}</span><span id="res${i}" onclick="reveal(${i})" style="color:var(--pink); cursor:pointer;">REVEAL ></span></div>`;
-        document.getElementById('gradeInputs').innerHTML += `<div style="display:flex; justify-content:space-between; margin:4px 0;"><small>${s}</small><select id="sel${i}"><option>A+</option><option>A</option><option>B+</option><option>B</option><option>C</option><option>D+</option></select></div>`;
+        document.getElementById('gradeInputs').innerHTML += `<div style="display:flex; justify-content:space-between; margin:6px 0;"><small>${s}</small><select id="sel${i}"><option>A+</option><option>A</option><option>B+</option><option>B</option><option>C</option><option>D+</option></select></div>`;
     });
 
     const params = new URLSearchParams(window.location.search);
@@ -149,7 +149,7 @@
         window.history.pushState({}, '', newUrl);
         document.getElementById('displayName').innerText = name;
         document.getElementById('genPopup').style.display = 'none';
-        alert("Link Generated!");
+        alert("Link Generated Successfully! Copy it from the browser address bar.");
     }
 
     function reveal(i) {
@@ -160,19 +160,20 @@
         modal.style.display = 'flex';
         document.getElementById('emojiLayer').style.display = 'block';
         document.getElementById('finalGrade').style.display = 'none';
+        
         let c = 0;
         let t = setInterval(() => {
-            document.getElementById('tEmoji').innerText = ["😭","😦," "😰", "🥴", "🤯"][c % 4];
-            if(c++ > 20) {
+            document.getElementById('tEmoji').innerText = tensionEmojis[c % tensionEmojis.length];
+            if(c++ > 15) {
                 clearInterval(t);
                 document.getElementById('emojiLayer').style.display = 'none';
                 const g = document.getElementById('sel'+i).value;
                 const fg = document.getElementById('finalGrade');
                 fg.innerText = g; fg.style.display = 'block';
-                confetti({particleCount: 100});
+                confetti({particleCount: 150, spread: 70, origin: { y: 0.6 }});
                 modal.onclick = () => { modal.style.display = 'none'; span.innerText = g; modal.onclick = null; };
             }
-        }, 100);
+        }, 120);
     }
 
     setInterval(() => {
@@ -182,11 +183,10 @@
         p.style.animationDuration = (Math.random() * 2 + 3) + 's';
         document.getElementById('flower-field').appendChild(p);
         setTimeout(() => p.remove(), 5000);
-    }, 400);
+    }, 450);
 
     function openGen() { document.getElementById('genPopup').style.display = 'block'; }
-    window.onscroll = () => { if(window.scrollY > 100) { document.getElementById('paper').classList.add('active'); startMusic(); } };
+    window.onscroll = () => { if(window.scrollY > 80) { document.getElementById('paper').classList.add('active'); startMusic(); } };
 </script>
 </body>
-        </html>
-        
+</html>
